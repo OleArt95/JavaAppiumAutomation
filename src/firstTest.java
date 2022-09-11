@@ -1,6 +1,7 @@
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -35,55 +36,50 @@ public class firstTest {
 
     @After
     public void tearDown() {
-
         driver.quit();
     }
 
     @Test
-    public void firstTest() {
-        waitForElementByXpathAndClick(
-                "//*[contains(@text,'Search Wikipedia')]",
-                "Cannot find Search Wikipedia input",
+    public void searchFieldHasText() {
+        WebElement searchInput = driver.findElementById("org.wikipedia:id/search_container");
+        searchInput.click();
+
+        waitForElementPresent(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Cannot find Search Input",
                 5
         );
 
-        waitForElementByXpathAndSendKeys(
-                "//*[contains(@text,'Search Wikipedia')]",
-                "Java",
-                "Cannot find search input",
-                5
+        assertElementHasText(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Search Wikipedia",
+                "the element does not have text"
         );
 
-        waitForElementPresentByXpath(
-                "//*[@resource-id='org.wikipedia:id/search_results_list']//*[@text='Object-oriented programming language']",
-                "Cannot find 'Object-oriented programming language' topic searching by Java",
-                15
-        );
     }
 
-    private WebElement waitForElementPresentByXpath(String xpath, String error_message, long timeoutInSeconds) {
+    private WebElement waitForElementPresent(By by, String errorMessage, long timeoutInSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        wait.withMessage(error_message + "\n");
-        By by = By.xpath(xpath);
+        wait.withMessage(errorMessage + "\n");
         return wait.until(
                 ExpectedConditions.presenceOfElementLocated(by)
         );
     }
 
-    private WebElement waitForElementPresentByXpath(String xpath, String error_message) {
+    private WebElement assertElementHasText(By by, String expectedText, String errorMessage) {
+        WebElement textElement = waitForElementPresent(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Cannot find text in search field",
+                5
+        );
 
-        return waitForElementPresentByXpath(xpath, error_message, 5);
-    }
+        String textInSearchInput = textElement.getAttribute("text");
 
-    private WebElement waitForElementByXpathAndClick(String xpath, String error_message, long timeoutInSeconds) {
-        WebElement element = waitForElementPresentByXpath(xpath, error_message, timeoutInSeconds);
-        element.click();
-        return element;
-    }
-
-    private WebElement waitForElementByXpathAndSendKeys(String xpath, String value, String error_message, long timeoutInSeconds) {
-        WebElement element = waitForElementPresentByXpath(xpath, error_message, timeoutInSeconds);
-        element.sendKeys(value);
-        return element;
+        Assert.assertEquals(
+                errorMessage,
+                expectedText,
+                textInSearchInput
+        );
+        return textElement;
     }
 }
