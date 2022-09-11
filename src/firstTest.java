@@ -75,11 +75,7 @@ public class firstTest {
 
         String textInSearchInput = textElement.getAttribute("text");
 
-        Assert.assertEquals(
-                errorMessage,
-                expectedText,
-                textInSearchInput
-        );
+        Assert.assertEquals(errorMessage, expectedText, textInSearchInput);
         return textElement;
     }
 }
